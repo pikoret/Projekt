@@ -1,0 +1,32 @@
+Suma pol wszystkich klockow = 62134, Pole palety = 32400
+status = Feasible
+Max po optymalizacji i ograniczeniach =15193
+x1,y1,x2,y2-wspó³rzêdne klocka, w-szerokoœæ, h-wysokoœæ ,o-czy zosta³ obrócony p- czy klocek zosta³ wybrany
+         x1,y1,x2,y2,w,h,o,p
+Klocek1:132,10,170,84,74,38,0
+Klocek2:123,24,170,76,52,47,0
+Klocek3:131,82,170,121,39,39,0
+Klocek4:10,10,43,47,37,33,0
+Klocek5:112,41,170,84,58,43,0
+Klocek6:122,41,170,87,46,48,0
+Klocek7:140,24,170,90,66,30,0
+Klocek8:10,10,49,85,75,39,1
+Klocek9:78,24,138,67,60,43,0
+Klocek10:59,41,100,71,30,41,0
+Klocek11:59,10,128,58,69,48,0
+Klocek12:113,77,170,111,57,34,0
+Klocek13:95,10,170,52,75,42,0
+Klocek14:138,112,170,160,48,32,0
+Klocek15:59,105,97,170,65,38,0
+Klocek16:130,117,170,160,40,43,0
+Klocek17:91,10,170,58,79,48,1
+Klocek18:132,92,170,170,78,38,1
+Klocek19:61,68,122,113,61,45,0
+Klocek20:79,128,122,170,43,42,0
+Klocek21:87,115,122,170,55,35,0
+Klocek22:60,125,103,170,43,45,0
+Klocek23:87,77,122,142,65,35,0
+Klocek24:68,135,122,170,54,35,0
+Klocek25:64,68,122,116,58,48,1
+Klocek26:60,137,113,170,53,33,0
+Klocek27:60,126,122,170,62,44,1
