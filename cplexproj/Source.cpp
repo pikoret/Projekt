@@ -9,10 +9,10 @@ ILOSTLBEGIN
 #include <iostream>
 
 	
-const unsigned int ILOSC_KLOCKOW = 24;
+const unsigned int ILOSC_KLOCKOW = 16;
 
 IloInt a = 0;//gap frame
-IloInt b = 18, c = 18;
+const IloInt b = 8, c = 8;
 
 class Klocek{
 public:
@@ -83,16 +83,16 @@ void dodajWspolneOgraniczenia(IloModel& modelRef, const Klocek & klocek)
   modelRef.add(klocek.y2 <= c-a);						//4.5
   
   modelRef.add(klocek.x1 + klocek.w + klocek.h*klocek.o - klocek.w*klocek.o - klocek.x2 == 0);//4.7 4.8
-  modelRef.add(klocek.y1 + klocek.h + (klocek.w - klocek.h)*klocek.o - klocek.y2 == 0); //4.9 4.10
+  modelRef.add(klocek.y1 + klocek.h + klocek.w*klocek.o - klocek.h*klocek.o - klocek.y2 == 0); //4.9 4.10
 }
 
 void dodajOgraniczeniaPierwszegoWariantu(IloModel& modelRef, const Klocek& klocek, const Klocek& kolejnyKlocek)
 {
-  modelRef.add(klocek.d1+klocek.d2+klocek.d3+klocek.d4<=3);			//4.6
-  modelRef.add(b-b*klocek.p + b*klocek.d1 + kolejnyKlocek.x1 - klocek.x2 -a >=0);		//4.11
-  modelRef.add(b-b*klocek.p + b*klocek.d2 + klocek.x1 - kolejnyKlocek.x2 -a >=0);		//4.12
-  modelRef.add(c-c*klocek.p + c*klocek.d3 + kolejnyKlocek.y1 - klocek.y2 -a >=0);		//4.13
-  modelRef.add(c-c*klocek.p + c*klocek.d4 + klocek.y1 - kolejnyKlocek.y2 -a >=0);		//4.14
+//  modelRef.add(klocek.d1+klocek.d2+klocek.d3+klocek.d4<=3);			//4.6
+  modelRef.add(b-b*klocek.p + kolejnyKlocek.x1 - klocek.x2 -a >=0 ||
+		 b-b*klocek.p + klocek.x1 - kolejnyKlocek.x2 -a >=0 ||
+		 c-c*klocek.p + kolejnyKlocek.y1 - klocek.y2 -a >=0 ||
+  c-c*klocek.p + klocek.y1 - kolejnyKlocek.y2 -a >=0);		//4.14
 }
 
 void dodajOgraniczeniaDrugiegoWariantu(IloModel& modelRef, const Klocek & klocek, const Klocek & kolejnyKlocek)
@@ -127,18 +127,18 @@ void wyswietlenieWynikow(const IloCplex & cplex, const bool bPierwszyWariant, co
     }
     cout<< "\t[x1,y1]=["<<cplex.getValue(wszystkieKlocki[i].x1)<<","<<cplex.getValue(wszystkieKlocki[i].y1)<<"]"<<endl;
     cout<< "\t[x2,y2]=["<<cplex.getValue(wszystkieKlocki[i].x2)<<","<<cplex.getValue(wszystkieKlocki[i].y2)<<"]"<<endl;
-    if(i<ILOSC_KLOCKOW-1)//poniewaz d nie sa dodawane dla ostatniego klocka
-    {
-      cout<< "\td1,d2,d3,d4=["<<cplex.getValue(wszystkieKlocki[i].d1)<<cplex.getValue(wszystkieKlocki[i].d2)<<cplex.getValue(wszystkieKlocki[i].d3)<<cplex.getValue(wszystkieKlocki[i].d4)<<"]"<<endl;
-    }
+    //if(i<ILOSC_KLOCKOW-1)//poniewaz d nie sa dodawane dla ostatniego klocka
+    //{
+    //  cout<< "\td1,d2,d3,d4=["<<cplex.getValue(wszystkieKlocki[i].d1)<<cplex.getValue(wszystkieKlocki[i].d2)<<cplex.getValue(wszystkieKlocki[i].d3)<<cplex.getValue(wszystkieKlocki[i].d4)<<"]"<<endl;
+    //}
   }
   cout << "-----------------------------------------------------------"<<endl;
 }
 
 void rysowanieWPliku(const IloCplex &cplex, const bool bPierwszyWariant, const vector<Klocek> & wszystkieKlocki)
 {
-  char tablica[180][180];
-  memset(tablica,'.', 180*180);
+  char tablica[b][c];
+  memset(tablica,'.', b*c);
   for(int i = 0; i<ILOSC_KLOCKOW; i++)
   {
     if(false == bPierwszyWariant || true == cplex.getValue(wszystkieKlocki[i].p))
@@ -157,9 +157,9 @@ void rysowanieWPliku(const IloCplex &cplex, const bool bPierwszyWariant, const v
   outputFile.open("wynik.txt",'w');
   if(outputFile.good())
   {
-    for(int y=180 -1;y>=0;y--)
+    for(int y=c -1;y>=0;y--)
     {
-      for(int x =0; x<180;x++)
+      for(int x =0; x<b;x++)
       {
         outputFile<<tablica[x][y];
       }
@@ -199,16 +199,16 @@ int main()
       IloIntVar y_max(env, a, c-a);//uzyte tylko w drugim wariancie
       
       bool bPierwszyWariant = true;
-      if(Sumapol < 0.75 * b*c)
-      {
-        bPierwszyWariant = false;
-      }
+      //if(Sumapol < 0.75 * b*c)
+      //{
+      //  bPierwszyWariant = false;
+      //}
     
       //ograniczenia
       for(int i = 0; i<ILOSC_KLOCKOW; i++) //i to k 
       {
         dodajWspolneOgraniczenia(model, wszystkieKlocki[i]);
-		bPierwszyWariant = true;
+	
         if(true == bPierwszyWariant)
         {
           for(int j = i+1; j<ILOSC_KLOCKOW; j++) //j to f
@@ -238,7 +238,7 @@ int main()
       }
     
       IloCplex cplex(model);
-      cplex.setParam(IloCplex::TiLim, 600);//limit czasowy
+      cplex.setParam(IloCplex::TiLim, 10);//limit czasowy
      // cplex.setOut(env.getNullStream());
       //cplex.setWarning(env.getNullStream());
       cplex.solve();
