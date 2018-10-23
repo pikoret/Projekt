@@ -97,11 +97,11 @@ void dodajOgraniczeniaPierwszegoWariantu(IloModel& modelRef, const Klocek& kloce
 
 void dodajOgraniczeniaDrugiegoWariantu(IloModel& modelRef, const Klocek & klocek, const Klocek & kolejnyKlocek)
 {
-  modelRef.add(klocek.d1+klocek.d2+klocek.d3+klocek.d4<=3);		//4.6
-  modelRef.add(b*klocek.d1 + kolejnyKlocek.x1 - klocek.x2 -a >=0);		//4.11
-  modelRef.add(b*klocek.d2 + klocek.x1 - kolejnyKlocek.x2 -a >=0);		//4.12
-  modelRef.add(c*klocek.d3 + kolejnyKlocek.y1 - klocek.y2 -a >=0);		//4.13
-  modelRef.add(c*klocek.d4 + klocek.y1 - kolejnyKlocek.y2 -a >=0);		//4.14
+ // modelRef.add(klocek.d1+klocek.d2+klocek.d3+klocek.d4<=3);		//4.6
+  modelRef.add( kolejnyKlocek.x1 - klocek.x2 -a >=0	
+   || klocek.x1 - kolejnyKlocek.x2 -a >=0
+   || kolejnyKlocek.y1 - klocek.y2 -a >=0
+   || klocek.y1 - kolejnyKlocek.y2 -a >=0);		//4.14
 }
 
 void wyswietlenieWynikow(const IloCplex & cplex, const bool bPierwszyWariant, const std::vector<Klocek> & wszystkieKlocki)
@@ -198,7 +198,7 @@ int main()
       IloIntVar x_max(env, a, b-a);//uzyte tylko w drugim wariancie
       IloIntVar y_max(env, a, c-a);//uzyte tylko w drugim wariancie
       
-      bool bPierwszyWariant = true;
+      bool bPierwszyWariant = true;// zmiana wairantow / true-max_pole/ false x+y=min
       //if(Sumapol < 0.75 * b*c)
       //{
       //  bPierwszyWariant = false;
