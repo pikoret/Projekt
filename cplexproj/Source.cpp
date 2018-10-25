@@ -118,6 +118,16 @@ void wyswietlenieWynikow(const IloCplex & cplex, const bool bPierwszyWariant, co
     cout <<"Minimum po optymalizacji i ograniczeniach ="<<cplex.getObjValue()<<endl;
   }
   cout << "------------------------------------------------------------------------"<<endl;
+
+  
+	 fstream outputFile;
+  outputFile.open("matlab.txt",'w');
+  if(outputFile.good())
+  {
+	  outputFile<<"plot(";
+  
+  }
+
   for(int i = 0; i<ILOSC_KLOCKOW;i++)
   {
     cout<< "klocek["<<i<<"]:"<<endl;
@@ -125,6 +135,18 @@ void wyswietlenieWynikow(const IloCplex & cplex, const bool bPierwszyWariant, co
     {
       cout<< "p="<<cplex.getValue(wszystkieKlocki[i].p)<<endl;
     }
+
+		
+
+  if(outputFile.good())
+  {
+  
+   //	'k-',[0 6 6 0 0],[0 0 6 6 0],'k-',[6 12 12 0 0],[0 0 6 6 0],'k-',[12 18 18 12 12],[0 0 6 6 0],'k-'
+	  outputFile<<"["<<cplex.getValue(wszystkieKlocki[i].x1)<<" "<<cplex.getValue(wszystkieKlocki[i].x2)<<" "<<cplex.getValue(wszystkieKlocki[i].x2)
+		<<" "<<cplex.getValue(wszystkieKlocki[i].x1)<<" "<<cplex.getValue(wszystkieKlocki[i].x1)<<"],["<<cplex.getValue(wszystkieKlocki[i].y1)<<" "<<cplex.getValue(wszystkieKlocki[i].y1)
+		<<" "<<cplex.getValue(wszystkieKlocki[i].y2)
+		<<" "<<cplex.getValue(wszystkieKlocki[i].y2)<<" "<<cplex.getValue(wszystkieKlocki[i].y1)<<"],'k-',";
+  }
     cout<< "\t[x1,y1]=["<<cplex.getValue(wszystkieKlocki[i].x1)<<","<<cplex.getValue(wszystkieKlocki[i].y1)<<"]"<<endl;
     cout<< "\t[x2,y2]=["<<cplex.getValue(wszystkieKlocki[i].x2)<<","<<cplex.getValue(wszystkieKlocki[i].y2)<<"]"<<endl;
     //if(i<ILOSC_KLOCKOW-1)//poniewaz d nie sa dodawane dla ostatniego klocka
@@ -132,12 +154,14 @@ void wyswietlenieWynikow(const IloCplex & cplex, const bool bPierwszyWariant, co
     //  cout<< "\td1,d2,d3,d4=["<<cplex.getValue(wszystkieKlocki[i].d1)<<cplex.getValue(wszystkieKlocki[i].d2)<<cplex.getValue(wszystkieKlocki[i].d3)<<cplex.getValue(wszystkieKlocki[i].d4)<<"]"<<endl;
     //}
   }
+  
   cout << "-----------------------------------------------------------"<<endl;
 }
 
 void rysowanieWPliku(const IloCplex &cplex, const bool bPierwszyWariant, const vector<Klocek> & wszystkieKlocki)
 {
   char tablica[b][c];
+  char wyswietlanie='a';
   memset(tablica,'.', b*c);
   for(int i = 0; i<ILOSC_KLOCKOW; i++)
   {
@@ -147,10 +171,11 @@ void rysowanieWPliku(const IloCplex &cplex, const bool bPierwszyWariant, const v
       {
         for(int y=cplex.getValue(wszystkieKlocki[i].y1);y<cplex.getValue(wszystkieKlocki[i].y2);y++)
         {
-          tablica[x][y] ='*';
+			tablica[x][y] =wyswietlanie;
         }
       }
     }
+	wyswietlanie++;
   }
   
   fstream outputFile;
@@ -198,7 +223,7 @@ int main()
       IloIntVar x_max(env, a, b-a);//uzyte tylko w drugim wariancie
       IloIntVar y_max(env, a, c-a);//uzyte tylko w drugim wariancie
       
-      bool bPierwszyWariant = true;// zmiana wairantow / true-max_pole/ false x+y=min
+      bool bPierwszyWariant = false;// zmiana wairantow / true-max_pole/ false x+y=min
       //if(Sumapol < 0.75 * b*c)
       //{
       //  bPierwszyWariant = false;
