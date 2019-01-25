@@ -6,18 +6,18 @@ ILOSTLBEGIN
 #include <fstream>
 #include <string>
 #include <vector>
+#include <array>
 #include <iostream>
 
 	
-const unsigned int ILOSC_KLOCKOW = 16;
+int ILOSC_KLOCKOW = 6;
 
 IloInt a = 0;//gap frame
-const IloInt b = 8, c = 8;
+IloInt b = 8, c = 8;
 
-class Klocek{
-public:
+struct Klocek{
   Klocek(const IloEnv &env,unsigned int w, unsigned int h):
-	  w(w),o(env,0,1),h(h),pole(w*h),p(env,0,1), x1(env, a, b-a), x2(env, a, b-a),y1(env, a, c-a), y2(env, a, c-a), d1(env,0,1), d2(env,0,1), d3(env,0,1), d4(env,0,1)
+	  w(w),o(env,0,1),h(h),pole(w*h),p(env,0,1), x1(env, a, b-a), x2(env, a, b-a),y1(env, a, c-a), y2(env, a, c-a)
   {
 
   }
@@ -28,20 +28,9 @@ public:
   IloIntVar x2; //dalsza krawêdŸ na osi X
   IloIntVar y1;
   IloIntVar y2;
-  //IloIntVar x; //po³o¿enie œrodka produktu
-  //IloIntVar y;
-  //gap = 3 //odstêp pomiedzy produktami
-  //gap frame = 10 //przerwa pomiêdzy palet¹ a produktami
-  //box limit 180x180 //wymiary palety
   IloNum pole; //pole a*b
   IloBoolVar o; //orientacja o {0,1} bez obrotu, obrót
   IloBoolVar p;// 0 nie wybrany, 1 wybrany
-  
-  IloBoolVar d1;
-  IloBoolVar d2;
-  IloBoolVar d3;
-  IloBoolVar d4;
-
 };
 
 bool wczytanieDanych(const IloEnv& env, const string nazwa_pliku, std::vector<Klocek> &ref)
@@ -50,20 +39,30 @@ bool wczytanieDanych(const IloEnv& env, const string nazwa_pliku, std::vector<Kl
   fInputFile.open(nazwa_pliku);
   if(fInputFile.good())
   {
+    std::string sLine;
+    std::getline(fInputFile,sLine);
+    std::stringstream stream(sLine);
+    stream>>b>>c>>ILOSC_KLOCKOW;
+
+    if(b<1||c<1||ILOSC_KLOCKOW<1)
+    {
+      cout<<"bledne dane!!!!"<<endl;
+      return false;
+    }
+
     for(int i=0; i<ILOSC_KLOCKOW; i++)
     {
-      int a=0,b=0;
-      std::string sLine;
+      int x=0,y=0;
       std::getline(fInputFile,sLine);
       std::stringstream stream(sLine);
-      stream>>a>>b;
- //  //   if(a>80 || a<30 || b>50 || b<30)
- //     {
- //  //     cout<<"bledne dane!!!!"<<endl;
- ////       return false;
- //     }
+      stream>>x>>y;
+      if(x>b || x<1 || y>c || y<1)
+      {
+        cout<<"bledne dane!!!!"<<endl;
+        return false;
+      }
 
-      Klocek k(env,a,b);
+      Klocek k(env,x,y);
       ref.push_back(k);
     }
     return true;
@@ -160,9 +159,17 @@ void wyswietlenieWynikow(const IloCplex & cplex, const bool bPierwszyWariant, co
 
 void rysowanieWPliku(const IloCplex &cplex, const bool bPierwszyWariant, const vector<Klocek> & wszystkieKlocki)
 {
-  char tablica[b][c];
+  std::vector<std::vector<char> > tablica;
+  for(int i=0;i<b;i++)
+  {
+    tablica.emplace_back();
+    for(int j=0;j<c;j++)
+    {
+      tablica.at(i).push_back('\0');
+    }
+  }
   char wyswietlanie='a';
-  memset(tablica,'.', b*c);
+
   for(int i = 0; i<ILOSC_KLOCKOW; i++)
   {
     if(false == bPierwszyWariant || true == cplex.getValue(wszystkieKlocki[i].p))
